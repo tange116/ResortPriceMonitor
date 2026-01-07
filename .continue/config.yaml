@@ -1,0 +1,22 @@
+name: PriceMonitor Continue Config
+version: 1
+
+models:
+  - name: "DeepSeek Coder (Local)"
+    provider: ollama
+    model: "deepseek-coder:6.7b"
+    apiBase: "http://localhost:11434"
+
+defaultModel: "DeepSeek Coder (Local)"
+
+settings:
+  temperature: 0.2
+  maxTokens: 1500
+  topP: 0.9
+  frequencyPenalty: 0
+  presencePenalty: 0
+  stopSequences: []
+  stream: true
+  timeout: 120
+  systemPrompt: |
+    You are an expert programmer. Continue the code based on the provided context. Ensure that the code is functional and follows best practices. 
