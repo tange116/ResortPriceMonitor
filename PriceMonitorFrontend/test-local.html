@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Med Price Monitor - Local Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="32" height="32" rx="8" fill="#4F46E5"/>
+                        <path d="M8 16L14 10L18 14L24 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>Club Med Price Monitor (Local)</h1>
+                </div>
+                <div class="resort-info">
+                    <span class="resort-name">Quebec Charlevoix</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Current Best Price</div>
+                <div class="stat-value" id="currentPrice">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Records</div>
+                <div class="stat-value" id="totalRecords">Loading...</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>Price History</h2>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Local test - reads from PriceParser folder (single source of truth)
+        async function loadLocalData() {
+            try {
+                const response = await fetch('../PriceParser/price_history.csv');
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                
+                const data = lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    const row = {};
+                    headers.forEach((header, index) => {
+                        row[header.trim()] = values[index]?.trim() || '';
+                    });
+                    return row;
+                }).filter(row => row.price_check_date);
+
+                // Update stats
+                document.getElementById('currentPrice').textContent = 
+                    '$' + parseInt(data[data.length - 1].best_price).toLocaleString();
+                document.getElementById('totalRecords').textContent = data.length;
+
+                // Create chart
+                const ctx = document.getElementById('priceChart').getContext('2d');
+                const labels = data.map(d => d.price_check_date);
+                const prices = data.map(d => parseInt(d.best_price));
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Best Price',
+                            data: prices,
+                            borderColor: '#4F46E5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                console.log('✅ Loaded', data.length, 'records');
+            } catch (error) {
+                console.error('❌ Error:', error);
+                alert('Error loading local CSV. Make sure you run this from a local server.');
+            }
+        }
+
+        loadLocalData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+# AWS SAM Configuration
+version = 0.1
+
+[default]
+[default.global.parameters]
+stack_name = "club-med-price-monitor"
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[default.deploy.parameters]
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+resolve_s3 = true
+region = "us-east-1"
+parameter_overrides = "Environment=prod"
+
+[default.sync.parameters]
+watch = true
+
+[dev]
+[dev.deploy.parameters]
+stack_name = "club-med-price-monitor-dev"
+parameter_overrides = "Environment=dev"

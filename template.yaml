@@ -1,0 +1,228 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Club Med Price Monitor - Serverless Application
+
+Parameters:
+  Environment:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - dev
+      - prod
+    Description: Environment name
+  
+  DomainName:
+    Type: String
+    Default: ''
+    Description: (Optional) Custom domain name for CloudFront distribution
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 512
+    Runtime: python3.13
+    Environment:
+      Variables:
+        S3_BUCKET: !Ref PriceHistoryBucket
+
+Resources:
+  # S3 Bucket for CSV storage
+  PriceHistoryBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'club-med-price-history-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - HEAD
+            AllowedOrigins:
+              - '*'
+            MaxAge: 3600
+      VersioningConfiguration:
+        Status: Enabled
+  
+  # Bucket Policy for CloudFront access
+  PriceHistoryBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PriceHistoryBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${PriceHistoryBucket.Arn}/*'
+  
+  # S3 Bucket for Frontend hosting
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'club-med-frontend-${AWS::AccountId}'
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  
+  # Frontend Bucket Policy
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+  
+  # Lambda Function for Price Scraping
+  PriceScraperFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub 'ClubMedPriceScraper-${Environment}'
+      CodeUri: ../PriceParser/
+      Handler: site_price_parser.lambda_handler
+      Description: Scrapes Club Med prices daily and saves to S3
+      Environment:
+        Variables:
+          S3_BUCKET: !Ref PriceHistoryBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref PriceHistoryBucket
+      Events:
+        DailySchedule:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 5 * * ? *)  # Run at 12:00 AM EST (5:00 AM UTC)
+            Description: Run price scraper daily at midnight EST
+            Enabled: true
+      Tags:
+        Environment: !Ref Environment
+        Application: ClubMedPriceMonitor
+  
+  # CloudWatch Log Group for Lambda
+  PriceScraperLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/ClubMedPriceScraper-${Environment}'
+      RetentionInDays: 30
+  
+  # CloudFront Distribution for Frontend
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub 'Club Med Price Monitor - ${Environment}'
+        DefaultRootObject: index.html
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !GetAtt CloudFrontOAC.Id
+          - Id: DataBucketOrigin
+            DomainName: !GetAtt PriceHistoryBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          MinTTL: 0
+          DefaultTTL: 86400  # 1 day
+          MaxTTL: 31536000  # 1 year
+        CacheBehaviors:
+          - PathPattern: '*.csv'
+            TargetOriginId: DataBucketOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            ForwardedValues:
+              QueryString: true  # Forward query strings for cache-busting
+              Cookies:
+                Forward: none
+            MinTTL: 0
+            DefaultTTL: 60  # 1 minute for CSV files
+            MaxTTL: 300  # 5 minutes max
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+        PriceClass: PriceClass_100  # Use only North America and Europe edge locations
+        HttpVersion: http2
+  
+  # Origin Access Control for CloudFront
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub 'club-med-oac-${AWS::AccountId}'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+Outputs:
+  WebsiteURL:
+    Description: CloudFront URL for the website
+    Value: !Sub 'https://${FrontendDistribution.DomainName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-WebsiteURL'
+  
+  FrontendBucketName:
+    Description: S3 bucket name for frontend files
+    Value: !Ref FrontendBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-FrontendBucket'
+  
+  PriceHistoryBucketName:
+    Description: S3 bucket name for CSV data
+    Value: !Ref PriceHistoryBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-DataBucket'
+  
+  LambdaFunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt PriceScraperFunction.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-LambdaArn'
+  
+  CloudFrontDistributionId:
+    Description: CloudFront distribution ID
+    Value: !Ref FrontendDistribution
+    Export:
+      Name: !Sub '${AWS::StackName}-DistributionId'
