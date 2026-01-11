@@ -24,6 +24,21 @@ from io import StringIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import Dict, Any, Optional
+from pathlib import Path
+
+# Load environment variables from .env file if it exists
+def load_env_file():
+    """Load .env file from project root (one level up from PriceParser/)."""
+    env_path = Path(__file__).parent.parent / '.env'
+    if env_path.exists():
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ.setdefault(key.strip(), value.strip())
+
+load_env_file()
 
 # Initialize S3 client (available in Lambda)
 try:
@@ -114,7 +129,8 @@ def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool
     Returns:
         {success, initial_price, best_price, start_date, end_date, url}
     """
-    base_url = "https://www.clubmed.ca/r/Destination-Pricing/w"
+    # Base URL is read from environment to avoid hard-coding the destination domain
+    base_url = os.getenv("PRICE_MONITOR_BASE_URL", "https://example.com/path")
     query_parts = [
         'adults=2', 'children=2',
         'birthdates=2015-05-08', 'birthdates=2018-07-08',
