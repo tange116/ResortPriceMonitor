@@ -359,7 +359,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Save to CSV
         if result['success'] and result.get('initial_price') and result.get('best_price'):
             try:
-                csv_path = 'price_history.csv'
+                csv_path = 'history.csv'
                 save_to_csv(result, csv_path)
                 result['csv_saved'] = True
                 result['csv_location'] = f"s3://{os.environ.get('S3_BUCKET')}/{csv_path}" if os.environ.get('S3_BUCKET') else csv_path
@@ -401,9 +401,9 @@ if __name__ == "__main__":
     print(json.dumps(response_body, indent=2))
     
     if response_body.get('csv_saved'):
-        print(f"\n✅ CSV saved to: price_history.csv")
+        print(f"\n✅ CSV saved to: history.csv")
         try:
-            with open('price_history.csv', 'r') as f:
+            with open('history.csv', 'r') as f:
                 lines = f.readlines()
                 print(f"   Total records: {len(lines) - 1}")
                 if len(lines) > 1:

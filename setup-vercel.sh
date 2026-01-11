@@ -90,7 +90,7 @@ if [ "$setup_scheduler" = "y" ]; then
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/pricemonitor_output.log</string>
+        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/pricemonitor_output.log</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
