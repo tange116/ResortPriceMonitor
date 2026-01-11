@@ -84,7 +84,7 @@ function updateStats() {
     
     // Current Price
     const currentPrice = parseInt(latest.best_price);
-    document.getElementById('currentPrice').textContent = `$${currentPrice.toLocaleString()}`;
+    document.getElementById('currentPrice').textContent = maskPrice(currentPrice);
     
     // Price Change
     if (previous) {
@@ -109,7 +109,7 @@ function updateStats() {
     const lowestEntry = priceData.reduce((min, entry) => 
         parseInt(entry.best_price) < parseInt(min.best_price) ? entry : min
     );
-    document.getElementById('lowestPrice').textContent = `$${parseInt(lowestEntry.best_price).toLocaleString()}`;
+    document.getElementById('lowestPrice').textContent = maskPrice(lowestEntry.best_price);
     document.getElementById('lowestDate').textContent = formatDate(lowestEntry.price_check_date);
     
     // Trend (last 30 days)
@@ -212,7 +212,7 @@ function createChart() {
                     displayColors: true,
                     callbacks: {
                         label: function(context) {
-                            return `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`;
+                            return `${context.dataset.label}: ${maskPrice(context.parsed.y)}`;
                         }
                     }
                 }
@@ -225,7 +225,7 @@ function createChart() {
                     },
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toLocaleString();
+                            return maskPrice(value);
                         },
                         color: '#6B7280',
                         font: {
