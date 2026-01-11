@@ -1,7 +1,7 @@
 // Configuration - GitHub Raw Content URL
 // Replace tange116 with your actual GitHub username
 const CONFIG = {
-    csvUrl: 'https://raw.githubusercontent.com/tange116/ResortPriceMonitor/master/PriceParser/price_history.csv',
+    csvUrl: 'https://cdn.jsdelivr.net/gh/tange116/ResortPriceMonitor/PriceParser/price_history.csv',
     // This fetches the CSV directly from your GitHub repository
     // Update tange116 before deploying to Vercel!
 };
