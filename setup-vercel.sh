@@ -79,18 +79,18 @@ if [ "$setup_scheduler" = "y" ]; then
     mkdir -p ~/Library/LaunchAgents
     
     # Create launchd plist
-    cat > ~/Library/LaunchAgents/com.clubmed.pricemonitor.plist << EOF
+    cat > ~/Library/LaunchAgents/com.resort.pricemonitor.plist << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.clubmed.pricemonitor</string>
+    <string>com.resort.pricemonitor</string>
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/clubmed_output.log</string>
+        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/pricemonitor_output.log</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -100,16 +100,16 @@ if [ "$setup_scheduler" = "y" ]; then
         <integer>0</integer>
     </dict>
     <key>StandardErrorPath</key>
-    <string>/tmp/clubmed_error.log</string>
+    <string>/tmp/pricemonitor_error.log</string>
     <key>StandardOutPath</key>
-    <string>/tmp/clubmed_output.log</string>
+    <string>/tmp/pricemonitor_output.log</string>
 </dict>
 </plist>
 EOF
     
-    launchctl load ~/Library/LaunchAgents/com.clubmed.pricemonitor.plist
+    launchctl load ~/Library/LaunchAgents/com.resort.pricemonitor.plist
     echo "✅ Scheduler loaded (runs daily at 12:00 PM)"
-    echo "   View logs: tail -f /tmp/clubmed_output.log"
+    echo "   View logs: tail -f /tmp/pricemonitor_output.log"
 else
     echo "⏭️  Skipping scheduler setup (you can do it manually later)"
 fi

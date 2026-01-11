@@ -93,7 +93,7 @@ Resources:
   PriceScraperFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub 'ClubMedPriceScraper-${Environment}'
+      FunctionName: !Sub 'ResortPriceScraper-${Environment}'
       CodeUri: ../PriceParser/
       Handler: site_price_parser.lambda_handler
       Description: Scrapes Price Monitor prices daily and saves to S3
@@ -112,13 +112,13 @@ Resources:
             Enabled: true
       Tags:
         Environment: !Ref Environment
-        Application: ClubMedPriceMonitor
+        Application: ResortPriceMonitor
   
   # CloudWatch Log Group for Lambda
   PriceScraperLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/ClubMedPriceScraper-${Environment}'
+      LogGroupName: !Sub '/aws/lambda/ResortPriceScraper-${Environment}'
       RetentionInDays: 30
   
   # CloudFront Distribution for Frontend
