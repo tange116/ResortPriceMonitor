@@ -1,0 +1,140 @@
+name: Deploy Club Med Price Monitor
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  SAM_STACK_NAME: club-med-price-monitor
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install AWS SAM CLI
+        run: |
+          pip install aws-sam-cli
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          # OR use access keys:
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      - name: Install Playwright
+        working-directory: ./PriceParser
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+      
+      - name: SAM Build
+        run: |
+          sam build --use-container
+      
+      - name: SAM Deploy
+        run: |
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name ${{ env.SAM_STACK_NAME }} \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ env.AWS_REGION }}
+      
+      - name: Get Stack Outputs
+        id: stack-outputs
+        run: |
+          FRONTEND_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.SAM_STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
+            --output text)
+          
+          DATA_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.SAM_STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`PriceHistoryBucketName`].OutputValue' \
+            --output text)
+          
+          CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.SAM_STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' \
+            --output text)
+          
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name ${{ env.SAM_STACK_NAME }} \
+            --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
+            --output text)
+          
+          echo "FRONTEND_BUCKET=$FRONTEND_BUCKET" >> $GITHUB_OUTPUT
+          echo "DATA_BUCKET=$DATA_BUCKET" >> $GITHUB_OUTPUT
+          echo "CLOUDFRONT_DOMAIN=$CLOUDFRONT_DOMAIN" >> $GITHUB_OUTPUT
+          echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+      
+      - name: Update Frontend Config
+        run: |
+          # Update the CSV URL in app.js
+          sed -i "s|csvUrl: '.*'|csvUrl: 'https://${{ steps.stack-outputs.outputs.DATA_BUCKET }}.s3.amazonaws.com/price_history.csv'|g" \
+            PriceMonitorFrontend/app.js
+      
+      - name: Upload Initial CSV to S3
+        run: |
+          if [ -f "PriceParser/price_history.csv" ]; then
+            aws s3 cp PriceParser/price_history.csv \
+              s3://${{ steps.stack-outputs.outputs.DATA_BUCKET }}/price_history.csv \
+              --content-type text/csv \
+              --cache-control no-cache
+          fi
+      
+      - name: Deploy Frontend to S3
+        run: |
+          aws s3 sync PriceMonitorFrontend/ \
+            s3://${{ steps.stack-outputs.outputs.FRONTEND_BUCKET }}/ \
+            --delete \
+            --cache-control max-age=31536000 \
+            --exclude "*.html" \
+            --exclude "*.txt"
+          
+          # Upload HTML with no-cache
+          aws s3 sync PriceMonitorFrontend/ \
+            s3://${{ steps.stack-outputs.outputs.FRONTEND_BUCKET }}/ \
+            --exclude "*" \
+            --include "*.html" \
+            --cache-control no-cache,no-store,must-revalidate
+      
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.stack-outputs.outputs.DISTRIBUTION_ID }} \
+            --paths "/*"
+      
+      - name: Display URLs
+        run: |
+          echo "🎉 Deployment Complete!"
+          echo ""
+          echo "🌐 Website URL: ${{ steps.stack-outputs.outputs.CLOUDFRONT_DOMAIN }}"
+          echo "📊 Data Bucket: ${{ steps.stack-outputs.outputs.DATA_BUCKET }}"
+          echo "🚀 Frontend Bucket: ${{ steps.stack-outputs.outputs.FRONTEND_BUCKET }}"
+          echo ""
+          echo "⏰ Price scraper runs daily at 12:00 AM EST"

@@ -1,0 +1,59 @@
+# Ignore Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Ignore Node
+node_modules/
+package-lock.json
+yarn.lock
+
+# Ignore AWS SAM
+.aws-sam/
+samconfig.toml.bak
+
+# Ignore IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+npm-debug.log*
+
+# Ignore secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Ignore temp files
+tmp/
+temp/
+*.tmp
+
+# Ignore build artifacts
+*.zip
+*.tar.gz
+
+# Ignore Playwright
+.playwright/
+
+# Keep these
+!.github/
+!.gitignore

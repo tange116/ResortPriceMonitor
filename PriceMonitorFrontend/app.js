@@ -1,9 +1,9 @@
-// Configuration - UPDATE THIS WITH YOUR S3 BUCKET URL
+// Configuration - GitHub Raw Content URL
+// Replace tange116 with your actual GitHub username
 const CONFIG = {
-    // Replace with your S3 bucket URL after deployment
-    csvUrl: 'https://YOUR-BUCKET-NAME.s3.amazonaws.com/price_history.csv',
-    // Or use CloudFront URL for better performance:
-    // csvUrl: 'https://YOUR-CLOUDFRONT-DOMAIN.cloudfront.net/price_history.csv',
+    csvUrl: 'https://raw.githubusercontent.com/tange116/ResortPriceMonitor/master/PriceParser/price_history.csv',
+    // This fetches the CSV directly from your GitHub repository
+    // Update tange116 before deploying to Vercel!
 };
 
 let priceData = [];
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
 });
 
-// Fetch CSV data from S3
+// Fetch CSV data from GitHub
 async function loadPriceData() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     
@@ -28,7 +28,8 @@ async function loadPriceData() {
             headers: {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 'Pragma': 'no-cache'
-            }
+            },
+            mode: 'cors'  // Enable CORS for GitHub raw content
         });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);

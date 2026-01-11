@@ -1,0 +1,26 @@
+{
+  "buildCommand": "echo 'Static site - no build required'",
+  "outputDirectory": "PriceMonitorFrontend",
+  "framework": "other",
+  "env": {},
+  "headers": [
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
