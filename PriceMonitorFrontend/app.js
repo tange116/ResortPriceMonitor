@@ -23,14 +23,7 @@ async function loadPriceData() {
     try {
         // Add timestamp to prevent caching (cache-busting)
         const cacheBuster = `?t=${Date.now()}`;
-        const response = await fetch(CONFIG.csvUrl + cacheBuster, {
-            cache: 'no-store',  // Tell browser not to cache
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache'
-            },
-            mode: 'cors'  // Enable CORS for GitHub raw content
-        });
+        const response = await fetch(CONFIG.csvUrl + cacheBuster);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
