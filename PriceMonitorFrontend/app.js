@@ -34,7 +34,6 @@ async function loadPriceData() {
         // Update UI
         updateStats();
         createChart();
-        populateTable();
         
         loadingOverlay.classList.add('hidden');
     } catch (error) {
