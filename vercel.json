@@ -1,12 +1,5 @@
 {
-  "buildCommand": "cd PriceMonitorFrontend",
   "outputDirectory": "PriceMonitorFrontend",
-  "rewrites": [
-    {
-      "source": "/history.csv",
-      "destination": "/PriceParser/history.csv"
-    }
-  ],
   "headers": [
     {
       "source": "/history.csv",
