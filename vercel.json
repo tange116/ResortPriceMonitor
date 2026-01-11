@@ -1,27 +1,10 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "cd PriceMonitorFrontend",
+  "outputDirectory": "PriceMonitorFrontend",
+  "rewrites": [
     {
-      "src": "PriceMonitorFrontend/**",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "PriceParser/history.csv",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/history.csv",
-      "dest": "/PriceParser/history.csv",
-      "headers": {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        "Content-Type": "text/csv"
-      }
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/PriceMonitorFrontend/$1"
+      "source": "/history.csv",
+      "destination": "/PriceParser/history.csv"
     }
   ],
   "headers": [
@@ -29,12 +12,16 @@
       "source": "/history.csv",
       "headers": [
         {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        },
+        {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
         },
         {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "key": "Content-Type",
+          "value": "text/csv"
         }
       ]
     }
