@@ -1,5 +1,5 @@
 """
-Club Med Price Parser - AWS Lambda Function
+Price Monitor Price Parser - AWS Lambda Function
 
 FLOW OVERVIEW:
 ==============
@@ -42,7 +42,7 @@ except ImportError:
 
 
 def extract_prices_from_html(html_content: str) -> Dict[str, Optional[str]]:
-    """Extract initial price and best price from Club Med HTML."""
+    """Extract initial price and best price from Price Monitor HTML."""
     prices = {'initial_price': None, 'best_price': None}
     
     # Method 1: sr-only spans
@@ -104,7 +104,7 @@ def fetch_with_playwright(url: str) -> str:
 
 def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool = True) -> Dict[str, Any]:
     """
-    Fetch prices from Club Med Quebec Charlevoix.
+    Fetch prices from Price Monitor Destination Pricing.
     
     Args:
         start_date: Format YYYY-MM-DD
@@ -114,7 +114,7 @@ def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool
     Returns:
         {success, initial_price, best_price, start_date, end_date, url}
     """
-    base_url = "https://www.clubmed.ca/r/quebec-charlevoix/w"
+    base_url = "https://www.clubmed.ca/r/Destination-Pricing/w"
     query_parts = [
         'adults=2', 'children=2',
         'birthdates=2015-05-08', 'birthdates=2018-07-08',
@@ -289,7 +289,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     PRODUCTION FLOW:
     1. EventBridge → Lambda (midnight EST)
-    2. Lambda → Fetch prices from Club Med
+    2. Lambda → Fetch prices from Price Monitor
     3. Lambda → Save to S3 (CacheControl: no-cache)
     4. Frontend → Fetch from S3 (?t=timestamp for cache-busting)
     
@@ -368,7 +368,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 # Local testing
 if __name__ == "__main__":
     print("=" * 60)
-    print("LOCAL TEST - Club Med Price Parser")
+    print("LOCAL TEST - Price Monitor Price Parser")
     print("=" * 60)
     
     test_event = {'start_date': '2026-12-13', 'end_date': '2026-12-19'}

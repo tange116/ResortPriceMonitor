@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Club Med Price Monitor - Vercel Setup Script
+# Price Monitor - Vercel Setup Script
 # This script helps you deploy to Vercel with local scheduling
 
 set -e
 
-echo "🚀 Club Med Price Monitor - Vercel Setup"
+echo "🚀 Price Monitor - Vercel Setup"
 echo "========================================="
 echo ""
 
@@ -58,7 +58,7 @@ echo ""
 # Step 5: Switch to SSH remote
 echo "Step 5: Configure Git SSH Remote"
 echo "--------------------------------"
-git remote set-url origin git@github.com:$github_username/ResortPriceMonitor.git
+git remote set-url origin git@github.com:$github_username/DestinationPriceMonitor.git
 echo "✅ Remote switched to SSH"
 echo ""
 
@@ -90,7 +90,7 @@ if [ "$setup_scheduler" = "y" ]; then
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor && /Users/tange/Documents/vscodeProjects/ResortPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/clubmed_output.log</string>
+        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at \$(date)" && git push 2>&1 | tee -a /tmp/clubmed_output.log</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -123,7 +123,7 @@ echo "📱 Next steps:"
 echo "1. Go to https://vercel.com/signup"
 echo "2. Sign up with GitHub account"
 echo "3. Click 'Import Project'"
-echo "4. Select 'ResortPriceMonitor' repository"
+echo "4. Select 'DestinationPriceMonitor' repository"
 echo "5. Vercel will auto-detect vercel.json"
 echo "6. Click 'Deploy'"
 echo ""

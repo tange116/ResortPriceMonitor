@@ -70,7 +70,7 @@ body {
     color: var(--gray-900);
 }
 
-.resort-info {
+.Destination-info {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -78,7 +78,7 @@ body {
     font-size: 14px;
 }
 
-.resort-name {
+.Destination-name {
     font-weight: 600;
     color: var(--gray-900);
 }

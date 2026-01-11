@@ -95,7 +95,7 @@ AWS_ROLE_ARN=arn:aws:iam::123456789:role/GitHubActionsRole
 
 ### Quick Deploy (Recommended)
 ```bash
-cd ResortPriceMonitor
+cd DestinationPriceMonitor
 ./deploy.sh
 ```
 
@@ -194,7 +194,7 @@ Schedule: cron(0 5 * * ? *)  # Current: Midnight EST
 # cron(0 9 * * ? *)   # 4 AM EST
 ```
 
-### Change Resort/Dates
+### Change Destination/Dates
 Edit `site_price_parser.py`:
 ```python
 query_parts = [
@@ -203,11 +203,11 @@ query_parts = [
 ]
 ```
 
-### Add More Resorts
+### Add More Destinations
 1. Duplicate Lambda function in `template.yaml`
 2. Change environment variables
 3. Create separate CSV files
-4. Update frontend to show multiple resorts
+4. Update frontend to show multiple Destinations
 
 ---
 

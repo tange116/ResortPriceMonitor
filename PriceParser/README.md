@@ -1,7 +1,7 @@
-# Club Med Price Parser - Setup Guide
+# Price Monitor Price Parser - Setup Guide
 
 ## Overview
-This AWS Lambda function parses prices from Club Med Quebec Charlevoix website and maintains a CSV history of price changes.
+This AWS Lambda function parses prices from Price Monitor Destination Pricing website and maintains a CSV history of price changes.
 
 ## Key Features
 - ✅ **No Selenium dependency** - Uses Playwright which works better with AWS Lambda
@@ -83,6 +83,6 @@ python site_price_parser.py
 
 ## Alternative: API-based Solution
 If you want to avoid browser automation entirely, you could:
-1. Contact Club Med to ask if they have an API
+1. Contact Price Monitor to ask if they have an API
 2. Use a third-party travel API aggregator
 3. Use a managed scraping service with built-in browser rendering

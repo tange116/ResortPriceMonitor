@@ -39,7 +39,7 @@ cat > ~/Library/LaunchAgents/com.clubmed.pricemonitor.plist << 'EOF'
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor && /Users/tange/Documents/vscodeProjects/ResortPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at $(date)" && git push</string>
+        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices at $(date)" && git push</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -95,7 +95,7 @@ crontab -e
 **2. Add this line (runs at 12 PM daily):**
 
 ```cron
-0 12 * * * cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor && /Users/tange/Documents/vscodeProjects/ResortPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 | tee -a /tmp/clubmed_cron.log
+0 12 * * * cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 | tee -a /tmp/clubmed_cron.log
 ```
 
 **3. View scheduled jobs:**
@@ -138,8 +138,8 @@ ssh -T git@github.com
 **5. Configure Git to use SSH:**
 
 ```bash
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
-git remote set-url origin git@github.com:YOUR_USERNAME/ResortPriceMonitor.git
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
+git remote set-url origin git@github.com:YOUR_USERNAME/DestinationPriceMonitor.git
 ```
 
 ---
@@ -154,16 +154,16 @@ Replace `YOUR_USERNAME` with your actual GitHub username:
 
 ```javascript
 // Before:
-csvUrl: 'https://raw.githubusercontent.com/YOUR_USERNAME/ResortPriceMonitor/master/PriceParser/price_history.csv',
+csvUrl: 'https://raw.githubusercontent.com/YOUR_USERNAME/DestinationPriceMonitor/master/PriceParser/price_history.csv',
 
 // After (example):
-csvUrl: 'https://raw.githubusercontent.com/tange116/ResortPriceMonitor/master/PriceParser/price_history.csv',
+csvUrl: 'https://raw.githubusercontent.com/tange116/DestinationPriceMonitor/master/PriceParser/price_history.csv',
 ```
 
 ### Step 2: Push Changes to GitHub
 
 ```bash
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
 git add -A
 git commit -m "Configure for Vercel deployment"
 git push
@@ -175,7 +175,7 @@ git push
 
 1. Go to https://vercel.com/signup (sign up with GitHub)
 2. Click "Import Project"
-3. Select your `ResortPriceMonitor` repository
+3. Select your `DestinationPriceMonitor` repository
 4. Vercel auto-detects `vercel.json` configuration
 5. Click "Deploy"
 6. Get your free domain: `your-project.vercel.app`
@@ -187,7 +187,7 @@ git push
 npm install -g vercel
 
 # Deploy
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
 vercel
 
 # Follow prompts:
@@ -203,8 +203,8 @@ vercel
 ### Test Local Script
 
 ```bash
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor/PriceParser
-/Users/tange/Documents/vscodeProjects/ResortPriceMonitor/.venv/bin/python site_price_parser.py
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/PriceParser
+/Users/tange/Documents/vscodeProjects/DestinationPriceMonitor/.venv/bin/python site_price_parser.py
 ```
 
 ### Check CSV Updated
@@ -246,7 +246,7 @@ tail -f /tmp/clubmed_error.log
 ### Test CSV Fetch from GitHub
 
 ```bash
-curl -L https://raw.githubusercontent.com/YOUR_USERNAME/ResortPriceMonitor/master/PriceParser/price_history.csv
+curl -L https://raw.githubusercontent.com/YOUR_USERNAME/DestinationPriceMonitor/master/PriceParser/price_history.csv
 ```
 
 ### Check if app.js has correct URL

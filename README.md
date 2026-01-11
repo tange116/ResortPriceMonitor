@@ -1,6 +1,6 @@
-# Club Med Price Monitor
+# Price Monitor
 
-A beautiful, serverless price monitoring dashboard that automatically tracks Club Med Quebec Charlevoix vacation prices daily and displays them in an interactive chart.
+A beautiful, serverless price monitoring dashboard that automatically tracks Price Monitor Destination Pricing Monitoring prices daily and displays them in an interactive chart.
 
 ![Price Monitor Dashboard](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=Club+Med+Price+Monitor)
 
@@ -17,8 +17,8 @@ A beautiful, serverless price monitoring dashboard that automatically tracks Clu
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/ResortPriceMonitor.git
-cd ResortPriceMonitor
+git clone https://github.com/yourusername/DestinationPriceMonitor.git
+cd DestinationPriceMonitor
 ```
 
 ### 2. Deploy to AWS

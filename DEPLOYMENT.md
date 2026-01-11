@@ -1,6 +1,6 @@
-# 🚀 Club Med Price Monitor - Deployment Guide
+# 🚀 Price Monitor - Deployment Guide
 
-A beautiful, serverless price monitoring dashboard that tracks Club Med Quebec Charlevoix prices daily.
+A beautiful, serverless price monitoring dashboard that tracks Price Monitor Destination Pricing prices daily.
 
 ## 📸 What You'll Get
 
@@ -63,7 +63,7 @@ aws configure
 
 2. **Run the deployment script**
 ```bash
-cd /path/to/ResortPriceMonitor
+cd /path/to/DestinationPriceMonitor
 ./deploy.sh
 ```
 
@@ -245,7 +245,7 @@ ssl_context.verify_mode = ssl.CERT_NONE
 
 ### Add Features
 1. Email alerts when price drops
-2. Multiple resorts monitoring
+2. Multiple Destinations monitoring
 3. Historical price comparison
 4. Mobile app (React Native)
 

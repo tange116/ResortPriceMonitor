@@ -49,7 +49,7 @@ aws configure
 
 ### Step 3: Deploy!
 ```bash
-cd /path/to/ResortPriceMonitor
+cd /path/to/DestinationPriceMonitor
 ./deploy.sh
 ```
 
@@ -210,7 +210,7 @@ Schedule: cron(0 5 * * ? *)  # Midnight EST
 # Change to: cron(0 17 * * ? *)  # Noon EST
 ```
 
-### Change Resort/Dates
+### Change Destination/Dates
 Edit `site_price_parser.py`:
 ```python
 query_parts = [

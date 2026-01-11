@@ -16,7 +16,7 @@ This document explains how data flows from the parser to the frontend in both lo
    $ cd PriceParser
    $ python site_price_parser.py
          ↓
-   Fetches Club Med prices (Playwright renders JavaScript)
+   Fetches Price Monitor prices (Playwright renders JavaScript)
          ↓
    Saves to: PriceParser/price_history.csv
          ↓
@@ -55,7 +55,7 @@ AWS Lambda Function
     ├─ Code: site_price_parser.py
     ├─ Env Vars: S3_BUCKET=club-med-prices-{account}
     └─ Execution:
-          1. Fetch prices from Club Med (Playwright)
+          1. Fetch prices from Price Monitor (Playwright)
           2. Read existing CSV from S3 (if exists)
           3. Update today's entry or append new
           4. Write back to S3 with CacheControl: no-cache

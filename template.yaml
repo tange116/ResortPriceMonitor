@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Club Med Price Monitor - Serverless Application
+Description: Price Monitor - Serverless Application
 
 Parameters:
   Environment:
@@ -96,7 +96,7 @@ Resources:
       FunctionName: !Sub 'ClubMedPriceScraper-${Environment}'
       CodeUri: ../PriceParser/
       Handler: site_price_parser.lambda_handler
-      Description: Scrapes Club Med prices daily and saves to S3
+      Description: Scrapes Price Monitor prices daily and saves to S3
       Environment:
         Variables:
           S3_BUCKET: !Ref PriceHistoryBucket
@@ -127,7 +127,7 @@ Resources:
     Properties:
       DistributionConfig:
         Enabled: true
-        Comment: !Sub 'Club Med Price Monitor - ${Environment}'
+        Comment: !Sub 'Price Monitor - ${Environment}'
         DefaultRootObject: index.html
         Origins:
           - Id: S3Origin

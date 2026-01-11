@@ -1,4 +1,4 @@
-name: Deploy Club Med Price Monitor
+name: Deploy Price Monitor
 
 on:
   push:

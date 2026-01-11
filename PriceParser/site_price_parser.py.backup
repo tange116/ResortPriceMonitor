@@ -28,7 +28,7 @@ except ImportError:
 
 def extract_prices_from_html(html_content: str) -> Dict[str, Optional[str]]:
     """
-    Extract initial price and best price from the Club Med webpage HTML.
+    Extract initial price and best price from the Price Monitor webpage HTML.
     
     Args:
         html_content: The HTML content of the webpage
@@ -264,7 +264,7 @@ def fetch_with_playwright(url: str) -> str:
 
 def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool = True) -> Dict[str, Any]:
     """
-    Fetch prices from Club Med Quebec Charlevoix website.
+    Fetch prices from Price Monitor Destination Pricing website.
     Uses Playwright for JavaScript rendering if available, falls back to urllib.
     
     For AWS Lambda: Install playwright and use AWS Lambda Layer with Chromium.
@@ -278,7 +278,7 @@ def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool
     Returns:
         Dictionary containing initial_price, best_price, and metadata
     """
-    base_url = "https://www.clubmed.ca/r/quebec-charlevoix/w"
+    base_url = "https://www.clubmed.ca/r/Destination-Pricing/w"
     
     # Build query parameters
     params = {
@@ -355,7 +355,7 @@ def fetch_club_med_prices(start_date: str, end_date: str, use_js_rendering: bool
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
-    AWS Lambda handler function to parse Club Med prices.
+    AWS Lambda handler function to parse Price Monitor prices.
     
     Expected event format:
     {

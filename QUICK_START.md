@@ -1,6 +1,6 @@
 # Quick Start: Deploy to Vercel
 
-Get your Club Med price monitor live in 5 minutes.
+Get your Price Monitor price monitor live in 5 minutes.
 
 ## 1️⃣ Update GitHub Username
 
@@ -16,7 +16,7 @@ sed -i '' 's/YOUR_USERNAME/tange116/g' PriceMonitorFrontend/app.js
 ## 2️⃣ Push to GitHub
 
 ```bash
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
 
 git add -A
 git commit -m "Configure for Vercel deployment"
@@ -29,14 +29,14 @@ git push
 1. Go to [vercel.com/signup](https://vercel.com/signup)
 2. Sign up with GitHub
 3. Click **"Import Project"**
-4. Select **"ResortPriceMonitor"**
+4. Select **"DestinationPriceMonitor"**
 5. Click **"Deploy"** (vercel.json is auto-detected)
 6. Get your free domain: `your-project.vercel.app`
 
 ### Option B: CLI
 ```bash
 npm install -g vercel
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
 vercel
 ```
 
@@ -59,7 +59,7 @@ cat > ~/Library/LaunchAgents/com.clubmed.pricemonitor.plist << 'EOF'
     <array>
         <string>/bin/bash</string>
         <string>-c</string>
-        <string>cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor && source .venv/bin/activate && python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 | tee -a /tmp/clubmed_run.log</string>
+        <string>cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && source .venv/bin/activate && python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 | tee -a /tmp/clubmed_run.log</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -89,7 +89,7 @@ launchctl list | grep clubmed
 crontab -e
 
 # Add this line (runs daily at 12:00 PM):
-0 12 * * * cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor && source .venv/bin/activate && python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 >> /tmp/clubmed_run.log
+0 12 * * * cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor && source .venv/bin/activate && python PriceParser/site_price_parser.py && git add PriceParser/price_history.csv && git commit -m "Update prices" && git push 2>&1 >> /tmp/clubmed_run.log
 ```
 
 ## ✅ Verify Everything Works
@@ -102,7 +102,7 @@ tail -f /tmp/clubmed_output.log  # Watch for runs
 
 ### Test 2: Test CSV fetch from GitHub
 ```bash
-curl -s https://raw.githubusercontent.com/YOUR_USERNAME/ResortPriceMonitor/master/PriceParser/price_history.csv | tail -5
+curl -s https://raw.githubusercontent.com/YOUR_USERNAME/DestinationPriceMonitor/master/PriceParser/price_history.csv | tail -5
 ```
 
 ### Test 3: Visit your Vercel site
@@ -113,7 +113,7 @@ You should see the price chart loading!
 
 ### Test 4: Manual test of scraper
 ```bash
-cd /Users/tange/Documents/vscodeProjects/ResortPriceMonitor
+cd /Users/tange/Documents/vscodeProjects/DestinationPriceMonitor
 source .venv/bin/activate
 python PriceParser/site_price_parser.py
 tail PriceParser/price_history.csv  # Check latest entry
@@ -150,7 +150,7 @@ tail PriceParser/price_history.csv  # Check latest entry
 
 ### "CSV not loading on Vercel"
 - Verify GitHub username in app.js is correct
-- Check: `curl https://raw.githubusercontent.com/YOUR_USERNAME/ResortPriceMonitor/master/PriceParser/price_history.csv`
+- Check: `curl https://raw.githubusercontent.com/YOUR_USERNAME/DestinationPriceMonitor/master/PriceParser/price_history.csv`
 - Ensure file is committed to GitHub: `git log --name-only PriceParser/price_history.csv`
 
 ### "Scheduler not running"

@@ -2,7 +2,7 @@
 
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                    CLUB MED PRICE MONITOR                       ┃
+┃                    Price Monitor PRICE MONITOR                       ┃
 ┃                    Complete Data Flow                           ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
@@ -17,7 +17,7 @@ Developer's Machine:
 │  $ python site_price_parser.py                                  │
 │         │                                                        │
 │         ├─ Launches Playwright + Chromium                       │
-│         ├─ Fetches Club Med website                             │
+│         ├─ Fetches Price Monitor website                             │
 │         ├─ Waits 8 seconds for JavaScript to render             │
 │         ├─ Extracts: Initial Price, Best Price                  │
 │         └─ Detects: No S3_BUCKET env var                        │
@@ -76,7 +76,7 @@ AWS Cloud Architecture:
 │  │  └─ S3_BUCKET=club-med-...   │                               │
 │  │                              │                               │
 │  │  Execution:                  │                               │
-│  │  1. Fetch Club Med prices    │                               │
+│  │  1. Fetch Price Monitor prices    │                               │
 │  │  2. GET existing CSV from S3 │──┐                            │
 │  │  3. Update today's entry     │  │                            │
 │  │  4. PUT back to S3           │──┤                            │
