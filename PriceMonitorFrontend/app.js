@@ -1,37 +1,55 @@
-// Configuration - GitHub Raw Content URL
-// Replace tange116 with your actual GitHub username
 const CONFIG = {
     csvUrl: 'https://cdn.jsdelivr.net/gh/tange116/ResortPriceMonitor/PriceParser/price_history.csv',
-    // This fetches the CSV directly from your GitHub repository
-    // Update tange116 before deploying to Vercel!
 };
+
+console.log('📊 Destination Price Monitor - Loading CSV from jsDelivr CDN');
 
 let priceData = [];
 let chart = null;
 let currentRange = 30;
 
-// Initialize the app
+// Mask price: show only thousands and above, mask hundreds and below with X
+function maskPrice(price) {
+    const numPrice = parseInt(price);
+    if (isNaN(numPrice)) return '$0';
+    
+    const thousandPart = Math.floor(numPrice / 1000);
+    const remainderPart = numPrice % 1000;
+    
+    if (remainderPart === 0) {
+        return `$${(thousandPart * 1000).toLocaleString()}`;
+    }
+    
+    return `$${thousandPart.toLocaleString()},XXX`;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPriceData();
     setupEventListeners();
 });
 
-// Fetch CSV data from GitHub
 async function loadPriceData() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     
     try {
-        // Add timestamp to prevent caching (cache-busting)
-        const cacheBuster = `?t=${Date.now()}`;
-        const response = await fetch(CONFIG.csvUrl + cacheBuster);
+        const url = CONFIG.csvUrl + `?_=${Date.now()}`;
+        
+        const response = await fetch(url, {
+            method: 'GET',
+            cache: 'no-cache'
+        });
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Failed to fetch CSV: HTTP ${response.status}`);
         }
         
         const csvText = await response.text();
         priceData = parseCSV(csvText);
         
-        // Update UI
+        if (priceData.length === 0) {
+            throw new Error('No price data found in CSV');
+        }
+        
         updateStats();
         createChart();
         
@@ -46,7 +64,7 @@ async function loadPriceData() {
                     <circle cx="32" cy="44" r="2" fill="currentColor"/>
                 </svg>
                 <h2 style="margin-bottom: 8px;">Failed to Load Data</h2>
-                <p style="color: #6B7280; margin-bottom: 16px;">Could not fetch price history from S3</p>
+                <p style="color: #6B7280; margin-bottom: 16px;">Could not fetch price history from GitHub</p>
                 <button onclick="location.reload()" style="padding: 10px 20px; background: #4F46E5; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                     Retry
                 </button>
@@ -55,9 +73,10 @@ async function loadPriceData() {
     }
 }
 
-// Parse CSV text into array of objects
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return [];
+    
     const headers = lines[0].split(',');
     
     return lines.slice(1).map(line => {
@@ -67,14 +86,12 @@ function parseCSV(csvText) {
             row[header.trim()] = values[index]?.trim() || '';
         });
         return row;
-    }).filter(row => row.price_check_date); // Filter out empty rows
+    }).filter(row => row.price_check_date);
 }
 
-// Update statistics cards
 function updateStats() {
     if (priceData.length === 0) return;
     
-    // Sort by date (most recent first)
     const sortedData = [...priceData].sort((a, b) => 
         new Date(b.price_check_date) - new Date(a.price_check_date)
     );
@@ -82,11 +99,9 @@ function updateStats() {
     const latest = sortedData[0];
     const previous = sortedData[1];
     
-    // Current Price
     const currentPrice = parseInt(latest.best_price);
     document.getElementById('currentPrice').textContent = maskPrice(currentPrice);
     
-    // Price Change
     if (previous) {
         const previousPrice = parseInt(previous.best_price);
         const change = currentPrice - previousPrice;
@@ -105,14 +120,12 @@ function updateStats() {
         }
     }
     
-    // Lowest Price
     const lowestEntry = priceData.reduce((min, entry) => 
         parseInt(entry.best_price) < parseInt(min.best_price) ? entry : min
     );
     document.getElementById('lowestPrice').textContent = maskPrice(lowestEntry.best_price);
     document.getElementById('lowestDate').textContent = formatDate(lowestEntry.price_check_date);
     
-    // Trend (last 30 days)
     const last30Days = sortedData.slice(0, Math.min(30, sortedData.length));
     if (last30Days.length > 1) {
         const oldest = last30Days[last30Days.length - 1];
@@ -134,18 +147,14 @@ function updateStats() {
         }
     }
     
-    // Last Update
     document.getElementById('lastUpdate').textContent = formatDate(latest.price_check_date);
 }
 
-// Create price chart
 function createChart() {
     const ctx = document.getElementById('priceChart').getContext('2d');
     
-    // Filter data based on selected range
     const filteredData = getFilteredData(currentRange);
     
-    // Sort by date (oldest first for chart)
     const sortedData = filteredData.sort((a, b) => 
         new Date(a.price_check_date) - new Date(b.price_check_date)
     );
@@ -251,34 +260,6 @@ function createChart() {
     });
 }
 
-// Populate data table
-function populateTable() {
-    const tbody = document.getElementById('tableBody');
-    
-    // Sort by date (most recent first)
-    const sortedData = [...priceData].sort((a, b) => 
-        new Date(b.price_check_date) - new Date(a.price_check_date)
-    );
-    
-    tbody.innerHTML = sortedData.map(row => {
-        const bestPrice = parseInt(row.best_price);
-        const initialPrice = parseInt(row.initial_price);
-        const savings = initialPrice - bestPrice;
-        const discount = ((savings / initialPrice) * 100).toFixed(0);
-        
-        return `
-            <tr>
-                <td>${formatDate(row.price_check_date)}</td>
-                <td class="price-cell">$${bestPrice.toLocaleString()}</td>
-                <td>$${initialPrice.toLocaleString()}</td>
-                <td class="savings-cell">$${savings.toLocaleString()}</td>
-                <td><span class="discount-badge">${discount}% OFF</span></td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// Get filtered data based on range
 function getFilteredData(days) {
     if (days === 'all') return priceData;
     
@@ -288,7 +269,6 @@ function getFilteredData(days) {
     return priceData.filter(d => new Date(d.price_check_date) >= cutoffDate);
 }
 
-// Setup event listeners
 function setupEventListeners() {
     document.querySelectorAll('.btn-control').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -302,14 +282,13 @@ function setupEventListeners() {
     });
 }
 
-// Download CSV
 function downloadCSV() {
     const csvContent = convertToCSV(priceData);
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `club_med_prices_${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `resort_prices_${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -322,7 +301,6 @@ function convertToCSV(data) {
     return [headers, ...rows].join('\n');
 }
 
-// Format date for display
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
