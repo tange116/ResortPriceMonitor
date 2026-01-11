@@ -292,3 +292,4 @@ MIT License - Feel free to modify and use!
 
 Built with ❤️ using AWS SAM, Python, Chart.js, and Playwright
 # Vercel deployment triggered Sat Jan 10 20:01:18 EST 2026
+# Repository is now public - Sat Jan 10 20:04:42 EST 2026
