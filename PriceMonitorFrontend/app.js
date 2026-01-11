@@ -1,8 +1,8 @@
 const CONFIG = {
-    csvUrl: 'https://cdn.jsdelivr.net/gh/tange116/ResortPriceMonitor/PriceParser/price_history.csv',
+    csvUrl: window.location.origin + '/history.csv',
 };
 
-console.log('📊 Destination Price Monitor - Loading CSV from jsDelivr CDN');
+console.log('📊 Destination Price Monitor - Loading from Vercel');
 
 let priceData = [];
 let chart = null;
