@@ -4,7 +4,7 @@ Price Monitor Price Parser - AWS Lambda Function
 FLOW OVERVIEW:
 ==============
 LOCAL TESTING:
-  python site_price_parser.py → PriceParser/price_history.csv
+  python site_price_parser.py → PriceMonitorFrontend/history.csv (single source of truth)
 
 AWS PRODUCTION:
   EventBridge (midnight EST) → Lambda → S3 bucket/price_history.csv
@@ -25,6 +25,13 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from typing import Dict, Any, Optional
 from pathlib import Path
+
+# Get the correct CSV path (PriceMonitorFrontend/history.csv is single source of truth)
+def get_csv_path() -> Path:
+    """Get the path to history.csv in PriceMonitorFrontend directory."""
+    script_dir = Path(__file__).parent
+    csv_path = script_dir.parent / 'PriceMonitorFrontend' / 'history.csv'
+    return csv_path
 
 # Load environment variables from .env file if it exists
 def load_env_file():
@@ -359,7 +366,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Save to CSV
         if result['success'] and result.get('initial_price') and result.get('best_price'):
             try:
-                csv_path = 'history.csv'
+                # Write to PriceMonitorFrontend/history.csv (single source of truth for Vercel)
+                csv_path = str(get_csv_path())
                 save_to_csv(result, csv_path)
                 result['csv_saved'] = True
                 result['csv_location'] = f"s3://{os.environ.get('S3_BUCKET')}/{csv_path}" if os.environ.get('S3_BUCKET') else csv_path
@@ -401,9 +409,10 @@ if __name__ == "__main__":
     print(json.dumps(response_body, indent=2))
     
     if response_body.get('csv_saved'):
-        print(f"\n✅ CSV saved to: history.csv")
+        csv_file = get_csv_path()
+        print(f"\n✅ CSV saved to: {csv_file}")
         try:
-            with open('history.csv', 'r') as f:
+            with open(csv_file, 'r') as f:
                 lines = f.readlines()
                 print(f"   Total records: {len(lines) - 1}")
                 if len(lines) > 1:
