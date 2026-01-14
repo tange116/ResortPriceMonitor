@@ -95,7 +95,7 @@ if [ "$setup_scheduler" = "y" ]; then
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>
-        <integer>12</integer>
+        <integer>19</integer>
         <key>Minute</key>
         <integer>0</integer>
     </dict>
@@ -108,7 +108,7 @@ if [ "$setup_scheduler" = "y" ]; then
 EOF
     
     launchctl load ~/Library/LaunchAgents/com.resort.pricemonitor.plist
-    echo "✅ Scheduler loaded (runs daily at 12:00 PM)"
+    echo "✅ Scheduler loaded (runs daily at 7:00 PM)"
     echo "   View logs: tail -f /tmp/pricemonitor_output.log"
 else
     echo "⏭️  Skipping scheduler setup (you can do it manually later)"

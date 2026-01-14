@@ -107,8 +107,8 @@ Resources:
         DailySchedule:
           Type: Schedule
           Properties:
-            Schedule: cron(0 5 * * ? *)  # Run at 12:00 AM EST (5:00 AM UTC)
-            Description: Run price scraper daily at midnight EST
+            Schedule: cron(0 0 * * ? *)  # Run at 7:00 PM EST (12:00 AM UTC next day)
+            Description: Run price scraper daily at 7:00 PM EST
             Enabled: true
       Tags:
         Environment: !Ref Environment
