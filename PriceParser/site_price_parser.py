@@ -423,8 +423,20 @@ if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("AWS PRODUCTION FLOW (After Deployment)")
     print("=" * 60)
-    print("1. EventBridge triggers Lambda at midnight EST")
+    print("1. EventBridge triggers Lambda at 7:00 PM EST")
     print("2. Lambda fetches prices → S3 bucket/price_history.csv")
     print("3. Frontend fetches from S3 with ?t=timestamp")
     print("4. Users see fresh data (max 1 min CDN delay)")
     print("=" * 60)
+    
+    # Send price change notification
+    print("\n" + "=" * 60)
+    print("CHECKING FOR PRICE CHANGES...")
+    print("=" * 60)
+    try:
+        from price_change_notifier import main as notify_price_changes
+        notify_price_changes()
+    except ImportError:
+        print("price_change_notifier module not found")
+    except Exception as e:
+        print(f"Error in price change notification: {e}")
