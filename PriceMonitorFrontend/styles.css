@@ -409,6 +409,11 @@ td.loading {
         padding: 12px;
     }
 
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
     .header {
         padding: 20px;
     }
@@ -420,10 +425,12 @@ td.loading {
 
     .stats-grid {
         grid-template-columns: 1fr;
+        order: 3;
     }
 
     .chart-container {
         padding: 20px;
+        order: 2;
     }
 
     .chart-wrapper {
@@ -432,6 +439,14 @@ td.loading {
 
     .table-container {
         padding: 20px;
+    }
+
+    .header {
+        order: 1;
+    }
+
+    .footer {
+        order: 4;
     }
 
     .chart-header,
