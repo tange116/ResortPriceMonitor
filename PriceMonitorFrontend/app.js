@@ -1,4 +1,5 @@
 const CONFIG = {
+    // Fetch from Vercel-hosted file (works with private repos)
     csvUrl: window.location.origin + '/history.csv',
 };
 
@@ -6,28 +7,33 @@ console.log('📊 Destination Price Monitor - Loading from Vercel');
 
 let priceData = [];
 let chart = null;
-let currentRange = 30;
+let currentRange = 'all';
 
 // Mask price: show only thousands and above, mask hundreds and below with X
 function maskPrice(price) {
     const numPrice = parseInt(price);
     if (isNaN(numPrice)) return '$0';
     
+    // Extract the thousand part (everything except last 3 digits)
     const thousandPart = Math.floor(numPrice / 1000);
     const remainderPart = numPrice % 1000;
     
+    // If no remainder, show the full thousands value
     if (remainderPart === 0) {
         return `$${(thousandPart * 1000).toLocaleString()}`;
     }
     
+    // Show thousands, mask the remainder with XXX
     return `$${thousandPart.toLocaleString()},XXX`;
 }
 
+// Initialize the app
 document.addEventListener('DOMContentLoaded', async () => {
     await loadPriceData();
     setupEventListeners();
 });
 
+// Fetch CSV data from GitHub via jsDelivr CDN
 async function loadPriceData() {
     const loadingOverlay = document.getElementById('loadingOverlay');
     
@@ -50,6 +56,7 @@ async function loadPriceData() {
             throw new Error('No price data found in CSV');
         }
         
+        // Update UI
         updateStats();
         createChart();
         
@@ -73,6 +80,7 @@ async function loadPriceData() {
     }
 }
 
+// Parse CSV text into array of objects
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) return [];
@@ -89,6 +97,7 @@ function parseCSV(csvText) {
     }).filter(row => row.price_check_date);
 }
 
+// Update statistics cards
 function updateStats() {
     if (priceData.length === 0) return;
     
@@ -99,9 +108,11 @@ function updateStats() {
     const latest = sortedData[0];
     const previous = sortedData[1];
     
+    // Current Best Price
     const currentPrice = parseInt(latest.best_price);
     document.getElementById('currentPrice').textContent = maskPrice(currentPrice);
     
+    // Price Change
     if (previous) {
         const previousPrice = parseInt(previous.best_price);
         const change = currentPrice - previousPrice;
@@ -120,15 +131,16 @@ function updateStats() {
         }
     }
     
+    // Lowest Price
     const lowestEntry = priceData.reduce((min, entry) => 
         parseInt(entry.best_price) < parseInt(min.best_price) ? entry : min
     );
     document.getElementById('lowestPrice').textContent = maskPrice(lowestEntry.best_price);
     document.getElementById('lowestDate').textContent = formatDate(lowestEntry.price_check_date);
     
-    const last30Days = sortedData.slice(0, Math.min(30, sortedData.length));
-    if (last30Days.length > 1) {
-        const oldest = last30Days[last30Days.length - 1];
+    // Trend (since day 1)
+    if (sortedData.length > 1) {
+        const oldest = sortedData[sortedData.length - 1];
         const trendChange = currentPrice - parseInt(oldest.best_price);
         const trendPercent = ((trendChange / parseInt(oldest.best_price)) * 100).toFixed(1);
         
@@ -147,9 +159,11 @@ function updateStats() {
         }
     }
     
+    // Last Update
     document.getElementById('lastUpdate').textContent = formatDate(latest.price_check_date);
 }
 
+// Create price chart
 function createChart() {
     const ctx = document.getElementById('priceChart').getContext('2d');
     
@@ -260,6 +274,7 @@ function createChart() {
     });
 }
 
+// Get filtered data based on range
 function getFilteredData(days) {
     if (days === 'all') return priceData;
     
@@ -269,6 +284,7 @@ function getFilteredData(days) {
     return priceData.filter(d => new Date(d.price_check_date) >= cutoffDate);
 }
 
+// Setup event listeners
 function setupEventListeners() {
     document.querySelectorAll('.btn-control').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -282,6 +298,7 @@ function setupEventListeners() {
     });
 }
 
+// Download CSV
 function downloadCSV() {
     const csvContent = convertToCSV(priceData);
     const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -301,6 +318,7 @@ function convertToCSV(data) {
     return [headers, ...rows].join('\n');
 }
 
+// Format date for display
 function formatDate(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
